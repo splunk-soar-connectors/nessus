@@ -15,18 +15,17 @@
 #
 #
 # Phantom App imports
-import phantom.app as phantom
+import time
 
-from phantom.base_connector import BaseConnector
+import phantom.app as phantom
+import requests
+import simplejson as json
+from bs4 import BeautifulSoup
 from phantom.action_result import ActionResult
+from phantom.base_connector import BaseConnector
 
 # Imports local to this App
 from nessusscanner_consts import *
-
-from bs4 import BeautifulSoup
-import simplejson as json
-import requests
-import time
 
 
 class RetVal(tuple):
@@ -304,8 +303,9 @@ class NessusCloudConnector(BaseConnector):
 
 if __name__ == '__main__':
 
-    import pudb
     import argparse
+
+    import pudb
 
     pudb.set_trace()
 

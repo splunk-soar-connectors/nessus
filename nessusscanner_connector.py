@@ -346,8 +346,8 @@ if __name__ == '__main__':
             headers['Referer'] = 'https://127.0.0.1/login'
 
             print("Logging into Platform to get the session id")
-            r2 = requests.post("https://127.0.0.1/login",
-                                verify=verify, data=data, headers=headers)   # nosemgrep: python.requests.best-practice.use-timeout.use-timeout
+            r2 = requests.post("https://127.0.0.1/login",    # nosemgrep: python.requests.best-practice.use-timeout.use-timeout
+                                verify=verify, data=data, headers=headers)
             session_id = r2.cookies['sessionid']
         except Exception as e:
             print("Unable to get session id from the platfrom. Error: " + str(e))

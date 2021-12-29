@@ -2,7 +2,7 @@
 # Nessus
 
 Publisher: Splunk  
-Connector Version: 2\.1\.1  
+Connector Version: 2\.1\.2  
 Product Vendor: Tenable  
 Product Name: Nessus  
 Product Version Supported (regex): "\.\*"  

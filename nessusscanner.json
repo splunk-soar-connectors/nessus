@@ -5,7 +5,7 @@
     "publisher": "Splunk",
     "package_name": "phantom_nessus",
     "type": "information",
-    "license": "Copyright (c) 2018-2021 Splunk Inc.",
+    "license": "Copyright (c) 2018-2022 Splunk Inc.",
     "main_module": "nessusscanner_connector.py",
     "app_version": "2.1.3",
     "fips_compliant": true,
@@ -473,11 +473,11 @@
             },
             {
                 "module": "soupsieve",
-                "input_file": "wheels/soupsieve-2.3-py3-none-any.whl"
+                "input_file": "wheels/soupsieve-2.3.1-py3-none-any.whl"
             },
             {
                 "module": "urllib3",
-                "input_file": "wheels/urllib3-1.26.7-py2.py3-none-any.whl"
+                "input_file": "wheels/urllib3-1.26.8-py2.py3-none-any.whl"
             }
         ]
     }

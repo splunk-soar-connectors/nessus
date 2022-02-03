@@ -17,6 +17,6 @@ POLICY_ID = "policy_id"
 
 NESSUS_SERVER = "nessus_server"
 ACCESS_KEY = "access_key"
-SECRET_KEY = "secret_key"
+SECRET_KEY = "secret_key"  # pragma: allowlist secret
 VERIFY_CERT = "verify_server_cert"
 LISTEN_PORT = "listen_port"

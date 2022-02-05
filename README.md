@@ -2,18 +2,18 @@
 # Nessus
 
 Publisher: Splunk  
-Connector Version: 2\.1\.2  
+Connector Version: 2\.1\.5  
 Product Vendor: Tenable  
 Product Name: Nessus  
 Product Version Supported (regex): "\.\*"  
-Minimum Product Version: 5\.0\.0  
+Minimum Product Version: 5\.1\.0  
 
 This app integrates with Tenable's Nessus scanner to provide endpoint\-based investigative actions
 
 [comment]: # ""
-[comment]: # "    File: readme.md"
+[comment]: # "    File: README.md"
 [comment]: # ""
-[comment]: # "    Copyright (c) 2018-2021 Splunk Inc."
+[comment]: # "    Copyright (c) 2018-2022 Splunk Inc."
 [comment]: # ""
 [comment]: # "    Licensed under Apache 2.0 (https://www.apache.org/licenses/LICENSE-2.0.txt)"
 [comment]: # ""

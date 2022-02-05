@@ -1,6 +1,6 @@
 # File: nessusscanner_connector.py
 #
-# Copyright (c) 2018-2021 Splunk Inc.
+# Copyright (c) 2018-2022 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -159,7 +159,7 @@ class NessusCloudConnector(BaseConnector):
 
         server = "https://" + str(server) + ":" + str(port) + "/"
 
-        headers = {'X-ApiKeys': 'accessKey=' + str(accessKey) + '; secretKey = ' + str(secretKey) + ';'}
+        headers = {'X-ApiKeys': 'accessKey=' + str(accessKey) + '; secretKey = ' + str(secretKey) + ';'}  # pragma: allowlist secret
 
         return headers, server, verifyCert
 

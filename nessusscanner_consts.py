@@ -1,6 +1,6 @@
 # File: nessusscanner_consts.py
 #
-# Copyright (c) 2018-2021 Splunk Inc.
+# Copyright (c) 2018-2022 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,6 @@ POLICY_ID = "policy_id"
 
 NESSUS_SERVER = "nessus_server"
 ACCESS_KEY = "access_key"
-SECRET_KEY = "secret_key"
+SECRET_KEY = "secret_key"  # pragma: allowlist secret
 VERIFY_CERT = "verify_server_cert"
 LISTEN_PORT = "listen_port"

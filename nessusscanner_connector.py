@@ -44,6 +44,9 @@ class NessusCloudConnector(BaseConnector):
         # Call the BaseConnectors init first
         super(NessusCloudConnector, self).__init__()
 
+    def _dump_error_log(self, error, message="Exception occurred."):
+        self.error_print(message, dump_object=error)
+
     def _process_empty_reponse(self, response, action_result):
 
         if response.status_code == 200:
@@ -53,7 +56,7 @@ class NessusCloudConnector(BaseConnector):
 
     def _process_html_response(self, response, action_result):
 
-        # An html response, treat it like an error
+        # A html response, treat it like an error
         status_code = response.status_code
 
         try:
@@ -62,11 +65,11 @@ class NessusCloudConnector(BaseConnector):
             split_lines = error_text.split('\n')
             split_lines = [x.strip() for x in split_lines if x.strip()]
             error_text = '\n'.join(split_lines)
-        except:
+        except Exception as e:
             error_text = "Cannot parse error details"
+            self._dump_error_log(e, "Error occurred in _process_html_response")
 
-        message = "Status Code: {0}. Data from server:\n{1}\n".format(status_code,
-                error_text)
+        message = "Status Code: {0}. Data from server:\n{1}\n".format(status_code, error_text)
 
         message = message.replace('{', '{{').replace('}', '}}')
 
@@ -78,13 +81,14 @@ class NessusCloudConnector(BaseConnector):
         try:
             resp_json = r.json()
         except Exception as e:
+            self._dump_error_log(e, "Error occurred in _process_json_response")
             return RetVal(action_result.set_status(phantom.APP_ERROR, "Unable to parse JSON response. Error: {0}".format(str(e))), None)
 
         # Please specify the status codes here
         if 200 <= r.status_code < 399:
             return RetVal(phantom.APP_SUCCESS, resp_json)
 
-        # You should process the error returned in the json
+        # You should process the error returned to the json
         message = "Error from server. Status Code: {0} Data from server: {1}".format(
                 r.status_code, r.text.replace('{', '{{').replace('}', '}}'))
 
@@ -108,7 +112,7 @@ class NessusCloudConnector(BaseConnector):
         if 'json' in content_type or 'text' in content_type:
             return self._process_json_response(r, action_result)
 
-        # Process an HTML resonse, Do this no matter what the api talks.
+        # Process an HTML response, Do this no matter what the api talks.
         # There is a high chance of a PROXY in between phantom and the rest of
         # world, in case of errors, PROXY's return HTML, this function parses
         # the error and adds it to the action_result.
@@ -135,12 +139,14 @@ class NessusCloudConnector(BaseConnector):
 
         try:
             request_func = getattr(requests, method)
-        except AttributeError:
+        except AttributeError as ae:
+            self._dump_error_log(ae, "Error occurred in _make_rest_call")
             return RetVal(action_result.set_status(phantom.APP_ERROR, "Invalid method: {0}".format(method)), resp_json)
 
         try:
             r = request_func(url, headers=headers, json=data, params=params, verify=verify)
         except Exception as e:
+            self._dump_error_log(e, "Error occurred in _make_rest_call")
             return RetVal(action_result.set_status( phantom.APP_ERROR, "Error Connecting to server. Details: {0}".format(str(e))), resp_json)
 
         return self._process_response(r, action_result)
@@ -157,9 +163,9 @@ class NessusCloudConnector(BaseConnector):
         port = config.get(LISTEN_PORT)
         verifyCert = config.get(VERIFY_CERT)
 
-        server = "https://" + str(server) + ":" + str(port) + "/"
+        server = "https://{server}:{port}/".format(server=server, port=port)
 
-        headers = {'X-ApiKeys': 'accessKey=' + str(accessKey) + '; secretKey = ' + str(secretKey) + ';'}  # pragma: allowlist secret
+        headers = {'X-ApiKeys': 'accessKey={accessKey}; secretKey={secretKey};'.format(accessKey=accessKey, secretKey=secretKey)}  # pragma: allowlist secret
 
         return headers, server, verifyCert
 
@@ -171,7 +177,7 @@ class NessusCloudConnector(BaseConnector):
 
         ret_val, resp_json = self._make_rest_call('users', action_result)
 
-        if (phantom.is_fail(ret_val)):
+        if phantom.is_fail(ret_val):
             self.save_progress("Test Connectivity Failed")
             return action_result.get_status()
 
@@ -190,7 +196,7 @@ class NessusCloudConnector(BaseConnector):
         # target to scan
         host_to_scan = param[TARGET_TO_SCAN]
 
-        # lets get the id of the scan policy to use
+        # get the id of the scan policy to use
         policy_id = param[POLICY_ID]
 
         # these are the options needed to create the scan launched. The scan uses the policy id and targets from
@@ -209,7 +215,7 @@ class NessusCloudConnector(BaseConnector):
 
         ret_val, running_scan_data = self._make_rest_call('scans', action_result, method='post', data=scanOptions)
 
-        if (phantom.is_fail(ret_val)):
+        if phantom.is_fail(ret_val):
             return action_result.get_status()
 
         # Once the scan has been launched and is running it is assigned an id which is gathered below
@@ -223,7 +229,7 @@ class NessusCloudConnector(BaseConnector):
 
             ret_val, scanStatus = self._make_rest_call('scans/{0}'.format(str(scan_id)), action_result)
 
-            if (phantom.is_fail(ret_val)):
+            if phantom.is_fail(ret_val):
                 self.save_progress("There was an error checking for the status of the scan")
                 return action_result.get_status()
 
@@ -237,13 +243,13 @@ class NessusCloudConnector(BaseConnector):
                 self.send_progress("scan completed")
                 hosts = scanStatus.get('hosts', [])
 
-        if (type(hosts) != list):
+        if type(hosts) != list:
             hosts = [hosts]
 
         for curr_item in hosts:
             action_result.add_data(curr_item)
 
-        if (hosts):
+        if hosts:
             scan_final_data = hosts[-1]
             total = scan_final_data["low"] + scan_final_data["medium"] + scan_final_data["high"] + scan_final_data["critical"]
             summary = action_result.update_summary({})
@@ -261,12 +267,15 @@ class NessusCloudConnector(BaseConnector):
         # gets the full information for the Nessus policies
         ret_val, list_policies = self._make_rest_call('policies/', action_result)
 
-        if (phantom.is_fail(ret_val)):
+        if phantom.is_fail(ret_val):
             return action_result.get_status()
 
         policies = list_policies.get('policies', [])
 
-        if (type(policies) != list):
+        if not policies:
+            policies = []
+
+        if type(policies) != list:
             policies = [policies]
 
         policy_counter = 0
@@ -324,30 +333,31 @@ if __name__ == '__main__':
     password = args.password
     verify = args.verify
 
-    if (username is not None and password is None):
+    if username is not None and password is None:
 
         # User specified a username but not a password, so ask
         import getpass
         password = getpass.getpass("Password: ")
 
-    if (username and password):
+    if username and password:
         try:
+            login_url = BaseConnector._get_phantom_base_url() + 'login'
             print("Accessing the Login page")
-            r = requests.get("https://127.0.0.1/login", verify=verify)     # nosemgrep: python.requests.best-practice.use-timeout.use-timeout
+            r = requests.get(login_url, verify=verify)     # nosemgrep: python.requests.best-practice.use-timeout.use-timeout
             csrftoken = r.cookies['csrftoken']
 
-            data = dict()
-            data['username'] = username
-            data['password'] = password
-            data['csrfmiddlewaretoken'] = csrftoken
-
-            headers = dict()
-            headers['Cookie'] = 'csrftoken=' + csrftoken
-            headers['Referer'] = 'https://127.0.0.1/login'
+            data = {
+                'username': username,
+                'password': password,
+                'csrfmiddlewaretoken': csrftoken
+            }
+            headers = {
+                'Cookie': 'csrftoken={}'.format(csrftoken),
+                'Referer': login_url
+            }
 
             print("Logging into Platform to get the session id")
-            r2 = requests.post("https://127.0.0.1/login",    # nosemgrep: python.requests.best-practice.use-timeout.use-timeout
-                                verify=verify, data=data, headers=headers)
+            r2 = requests.post(login_url, verify=verify, data=data, headers=headers)
             session_id = r2.cookies['sessionid']
         except Exception as e:
             print("Unable to get session id from the platfrom. Error: " + str(e))
@@ -361,7 +371,7 @@ if __name__ == '__main__':
         connector = NessusCloudConnector()
         connector.print_progress_message = True
 
-        if (session_id is not None):
+        if session_id is not None:
             in_json['user_session_token'] = session_id
             connector._set_csrf_info(csrftoken, headers['Referer'])
 

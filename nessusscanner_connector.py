@@ -165,7 +165,11 @@ class NessusCloudConnector(BaseConnector):
 
         server = "https://{server}:{port}/".format(server=server, port=port)
 
-        headers = {'X-ApiKeys': 'accessKey={accessKey}; secretKey={secretKey};'.format(accessKey=accessKey, secretKey=secretKey)}  # pragma: allowlist secret
+        headers = {
+            'X-ApiKeys': 'accessKey={accessKey}; secretKey={secretKey};'.format(
+                accessKey=accessKey, secretKey=secretKey
+            )
+        }  # pragma: allowlist secret
 
         return headers, server, verifyCert
 

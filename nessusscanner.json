@@ -7,7 +7,7 @@
     "type": "information",
     "license": "Copyright (c) 2018-2022 Splunk Inc.",
     "main_module": "nessusscanner_connector.py",
-    "app_version": "2.1.5",
+    "app_version": "2.1.6",
     "fips_compliant": true,
     "utctime_updated": "2022-02-03T23:46:17.000000Z",
     "product_vendor": "Tenable",
@@ -106,7 +106,7 @@
                 {
                     "data_path": "action_result.data.*.id",
                     "column_name": "ID",
-                    "column_order": 1,
+                    "column_order": 0,
                     "data_type": "string",
                     "contains": [
                         "nessus policy id"
@@ -128,7 +128,7 @@
                     "data_path": "action_result.data.*.name",
                     "data_type": "string",
                     "column_name": "Name",
-                    "column_order": 0,
+                    "column_order": 1,
                     "example_values": [
                         "Policy for basic network test - Herman"
                     ]

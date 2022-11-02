@@ -56,7 +56,7 @@ class NessusCloudConnector(BaseConnector):
 
     def _process_html_response(self, response, action_result):
 
-        # A html response, treat it like an error
+        # An html response, treat it like an error
         status_code = response.status_code
 
         try:
@@ -88,7 +88,7 @@ class NessusCloudConnector(BaseConnector):
         if 200 <= r.status_code < 399:
             return RetVal(phantom.APP_SUCCESS, resp_json)
 
-        # You should process the error returned to the json
+        # You should process the error returned in the json
         message = "Error from server. Status Code: {0} Data from server: {1}".format(
                 r.status_code, r.text.replace('{', '{{').replace('}', '}}'))
 
@@ -166,10 +166,10 @@ class NessusCloudConnector(BaseConnector):
         server = "https://{server}:{port}/".format(server=server, port=port)
 
         headers = {
-            'X-ApiKeys': 'accessKey={accessKey}; secretKey={secretKey};'.format(
+            'X-ApiKeys': 'accessKey={accessKey}; secretKey={secretKey};'.format(  # pragma: allowlist secret
                 accessKey=accessKey, secretKey=secretKey
             )
-        }  # pragma: allowlist secret
+        }
 
         return headers, server, verifyCert
 

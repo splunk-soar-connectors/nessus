@@ -2,11 +2,11 @@
 # Nessus
 
 Publisher: Splunk  
-Connector Version: 2\.1\.5  
+Connector Version: 2\.2\.0  
 Product Vendor: Tenable  
 Product Name: Nessus  
 Product Version Supported (regex): "\.\*"  
-Minimum Product Version: 5\.1\.0  
+Minimum Product Version: 5\.3\.5  
 
 This app integrates with Tenable's Nessus scanner to provide endpoint\-based investigative actions
 

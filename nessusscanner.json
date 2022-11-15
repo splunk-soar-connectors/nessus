@@ -7,13 +7,13 @@
     "type": "information",
     "license": "Copyright (c) 2018-2022 Splunk Inc.",
     "main_module": "nessusscanner_connector.py",
-    "app_version": "2.1.5",
+    "app_version": "2.2.0",
     "fips_compliant": true,
     "utctime_updated": "2022-02-03T23:46:17.000000Z",
     "product_vendor": "Tenable",
     "product_name": "Nessus",
     "product_version_regex": ".*",
-    "min_phantom_version": "5.1.0",
+    "min_phantom_version": "5.3.5",
     "python_version": "3",
     "latest_tested_versions": [
         "On-prem, Version 6.8.1"
@@ -106,7 +106,7 @@
                 {
                     "data_path": "action_result.data.*.id",
                     "column_name": "ID",
-                    "column_order": 1,
+                    "column_order": 0,
                     "data_type": "string",
                     "contains": [
                         "nessus policy id"
@@ -128,7 +128,7 @@
                     "data_path": "action_result.data.*.name",
                     "data_type": "string",
                     "column_name": "Name",
-                    "column_order": 0,
+                    "column_order": 1,
                     "example_values": [
                         "Policy for basic network test - Herman"
                     ]
@@ -453,7 +453,7 @@
             },
             {
                 "module": "certifi",
-                "input_file": "wheels/shared/certifi-2021.10.8-py2.py3-none-any.whl"
+                "input_file": "wheels/py3/certifi-2022.9.24-py3-none-any.whl"
             },
             {
                 "module": "chardet",
@@ -473,11 +473,11 @@
             },
             {
                 "module": "soupsieve",
-                "input_file": "wheels/py3/soupsieve-2.3.1-py3-none-any.whl"
+                "input_file": "wheels/py3/soupsieve-2.3.2.post1-py3-none-any.whl"
             },
             {
                 "module": "urllib3",
-                "input_file": "wheels/shared/urllib3-1.26.8-py2.py3-none-any.whl"
+                "input_file": "wheels/shared/urllib3-1.26.12-py2.py3-none-any.whl"
             }
         ]
     },
@@ -489,7 +489,7 @@
             },
             {
                 "module": "certifi",
-                "input_file": "wheels/shared/certifi-2021.10.8-py2.py3-none-any.whl"
+                "input_file": "wheels/py3/certifi-2022.9.24-py3-none-any.whl"
             },
             {
                 "module": "chardet",
@@ -509,11 +509,11 @@
             },
             {
                 "module": "soupsieve",
-                "input_file": "wheels/py3/soupsieve-2.3.1-py3-none-any.whl"
+                "input_file": "wheels/py3/soupsieve-2.3.2.post1-py3-none-any.whl"
             },
             {
                 "module": "urllib3",
-                "input_file": "wheels/shared/urllib3-1.26.8-py2.py3-none-any.whl"
+                "input_file": "wheels/shared/urllib3-1.26.12-py2.py3-none-any.whl"
             }
         ]
     }

@@ -5,7 +5,7 @@
     "publisher": "Splunk",
     "package_name": "phantom_nessus",
     "type": "information",
-    "license": "Copyright (c) 2018-2022 Splunk Inc.",
+    "license": "Copyright (c) 2018-2023 Splunk Inc.",
     "main_module": "nessusscanner_connector.py",
     "app_version": "2.2.1",
     "fips_compliant": true,

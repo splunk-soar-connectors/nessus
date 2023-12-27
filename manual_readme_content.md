@@ -1,7 +1,7 @@
 [comment]: # ""
 [comment]: # "    File: README.md"
 [comment]: # ""
-[comment]: # "    Copyright (c) 2018-2022 Splunk Inc."
+[comment]: # "    Copyright (c) 2018-2023 Splunk Inc."
 [comment]: # ""
 [comment]: # "    Licensed under Apache 2.0 (https://www.apache.org/licenses/LICENSE-2.0.txt)"
 [comment]: # ""

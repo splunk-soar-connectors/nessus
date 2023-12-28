@@ -2,18 +2,18 @@
 # Nessus
 
 Publisher: Splunk  
-Connector Version: 2\.2\.0  
+Connector Version: 2.2.1  
 Product Vendor: Tenable  
 Product Name: Nessus  
-Product Version Supported (regex): "\.\*"  
-Minimum Product Version: 5\.3\.5  
+Product Version Supported (regex): ".\*"  
+Minimum Product Version: 5.3.5  
 
-This app integrates with Tenable's Nessus scanner to provide endpoint\-based investigative actions
+This app integrates with Tenable's Nessus scanner to provide endpoint-based investigative actions
 
 [comment]: # ""
 [comment]: # "    File: README.md"
 [comment]: # ""
-[comment]: # "    Copyright (c) 2018-2022 Splunk Inc."
+[comment]: # "    Copyright (c) 2018-2023 Splunk Inc."
 [comment]: # ""
 [comment]: # "    Licensed under Apache 2.0 (https://www.apache.org/licenses/LICENSE-2.0.txt)"
 [comment]: # ""
@@ -31,12 +31,12 @@ The below configuration variables are required for this Connector to operate.  T
 
 VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
-**nessus\_server** |  required  | string | Nessus server IP/hostname
-**verify\_server\_cert** |  optional  | boolean | Verify server certificate
-**listen\_port** |  required  | string | Port that the Nessus server is listening on
+**nessus_server** |  required  | string | Nessus server IP/hostname
+**verify_server_cert** |  optional  | boolean | Verify server certificate
+**listen_port** |  required  | string | Port that the Nessus server is listening on
 **placeholder** |  optional  | ph | 
-**access\_key** |  required  | password | Access Key from user's api screen
-**secret\_key** |  required  | password | Secret Key from user's api screen
+**access_key** |  required  | password | Access Key from user's api screen
+**secret_key** |  required  | password | Secret Key from user's api screen
 
 ### Supported Actions  
 [test connectivity](#action-test-connectivity) - Validate the asset configuration using api tokens  
@@ -65,25 +65,25 @@ Read only: **True**
 No parameters are required for this action
 
 #### Action Output
-DATA PATH | TYPE | CONTAINS
---------- | ---- | --------
-action\_result\.status | string | 
-action\_result\.data\.\*\.creation\_date | numeric | 
-action\_result\.data\.\*\.description | string | 
-action\_result\.data\.\*\.id | string |  `nessus policy id` 
-action\_result\.data\.\*\.last\_modification\_date | numeric | 
-action\_result\.data\.\*\.name | string | 
-action\_result\.data\.\*\.no\_target | string | 
-action\_result\.data\.\*\.owner | string | 
-action\_result\.data\.\*\.owner\_id | numeric | 
-action\_result\.data\.\*\.shared | numeric | 
-action\_result\.data\.\*\.template\_uuid | string | 
-action\_result\.data\.\*\.user\_permissions | numeric | 
-action\_result\.data\.\*\.visibility | string | 
-action\_result\.summary\.policy\_count | numeric | 
-action\_result\.message | string | 
-summary\.total\_objects | numeric | 
-summary\.total\_objects\_successful | numeric |   
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.status | string |  |   success  failed 
+action_result.data.\*.creation_date | numeric |  |   1500907246 
+action_result.data.\*.description | string |  |  
+action_result.data.\*.id | string |  `nessus policy id`  |   4 
+action_result.data.\*.last_modification_date | numeric |  |   1500907264 
+action_result.data.\*.name | string |  |   Policy for basic network test - Herman 
+action_result.data.\*.no_target | string |  |   false 
+action_result.data.\*.owner | string |  |   admin 
+action_result.data.\*.owner_id | numeric |  |   2 
+action_result.data.\*.shared | numeric |  |   1 
+action_result.data.\*.template_uuid | string |  |   731a8e52-3ea6-a291-ec0a-d2ff0619c19d7bd788d6be818b65 
+action_result.data.\*.user_permissions | numeric |  |   128 
+action_result.data.\*.visibility | string |  |   shared 
+action_result.summary.policy_count | numeric |  |   1 
+action_result.message | string |  |   Policy count: 1 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1   
 
 ## action: 'scan endpoint'
 Scans a host using the selected scan policy ID
@@ -91,38 +91,38 @@ Scans a host using the selected scan policy ID
 Type: **investigate**  
 Read only: **True**
 
-This action requires the ID of the scan policy to be used in the scan\. Note, the scan may take 10\-15 minutes\.
+This action requires the ID of the scan policy to be used in the scan. Note, the scan may take 10-15 minutes.
 
 #### Action Parameters
 PARAMETER | REQUIRED | DESCRIPTION | TYPE | CONTAINS
 --------- | -------- | ----------- | ---- | --------
-**target\_to\_scan** |  required  | IP of host to scan | string |  `ip`  `hostname` 
-**policy\_id** |  required  | ID of the scan policy to use | string |  `nessus policy id` 
+**target_to_scan** |  required  | IP of host to scan | string |  `ip`  `hostname` 
+**policy_id** |  required  | ID of the scan policy to use | string |  `nessus policy id` 
 
 #### Action Output
-DATA PATH | TYPE | CONTAINS
---------- | ---- | --------
-action\_result\.status | string | 
-action\_result\.parameter\.policy\_id | string |  `nessus policy id` 
-action\_result\.parameter\.target\_to\_scan | string |  `ip`  `hostname` 
-action\_result\.data\.\*\.critical | numeric | 
-action\_result\.data\.\*\.high | numeric | 
-action\_result\.data\.\*\.host\_id | numeric | 
-action\_result\.data\.\*\.host\_index | numeric | 
-action\_result\.data\.\*\.hostname | string |  `ip`  `host name` 
-action\_result\.data\.\*\.info | numeric | 
-action\_result\.data\.\*\.low | numeric | 
-action\_result\.data\.\*\.medium | numeric | 
-action\_result\.data\.\*\.numchecksconsidered | numeric | 
-action\_result\.data\.\*\.progress | string | 
-action\_result\.data\.\*\.scanprogresscurrent | numeric | 
-action\_result\.data\.\*\.scanprogresstotal | numeric | 
-action\_result\.data\.\*\.score | numeric | 
-action\_result\.data\.\*\.severity | numeric | 
-action\_result\.data\.\*\.severitycount\.item\.\*\.count | numeric | 
-action\_result\.data\.\*\.severitycount\.item\.\*\.severitylevel | numeric | 
-action\_result\.data\.\*\.totalchecksconsidered | numeric | 
-action\_result\.summary\.total\_vulns | numeric | 
-action\_result\.message | string | 
-summary\.total\_objects | numeric | 
-summary\.total\_objects\_successful | numeric | 
+DATA PATH | TYPE | CONTAINS | EXAMPLE VALUES
+--------- | ---- | -------- | --------------
+action_result.status | string |  |   success  failed 
+action_result.parameter.policy_id | string |  `nessus policy id`  |   4 
+action_result.parameter.target_to_scan | string |  `ip`  `hostname`  |   172.16.54.130 
+action_result.data.\*.critical | numeric |  |   1 
+action_result.data.\*.high | numeric |  |   4 
+action_result.data.\*.host_id | numeric |  |   2 
+action_result.data.\*.host_index | numeric |  |   0 
+action_result.data.\*.hostname | string |  `ip`  `host name`  |   172.16.54.130 
+action_result.data.\*.info | numeric |  |   71 
+action_result.data.\*.low | numeric |  |   2 
+action_result.data.\*.medium | numeric |  |   7 
+action_result.data.\*.numchecksconsidered | numeric |  |   4139 
+action_result.data.\*.progress | string |  |   4139-4139/91296-91296 
+action_result.data.\*.scanprogresscurrent | numeric |  |   4139 
+action_result.data.\*.scanprogresstotal | numeric |  |   4139 
+action_result.data.\*.score | numeric |  |   14791 
+action_result.data.\*.severity | numeric |  |   85 
+action_result.data.\*.severitycount.item.\*.count | numeric |  |   71 
+action_result.data.\*.severitycount.item.\*.severitylevel | numeric |  |   0 
+action_result.data.\*.totalchecksconsidered | numeric |  |   4139 
+action_result.summary.total_vulns | numeric |  |   14 
+action_result.message | string |  |   Total vulns: 14 
+summary.total_objects | numeric |  |   1 
+summary.total_objects_successful | numeric |  |   1 

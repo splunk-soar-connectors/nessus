@@ -1,6 +1,6 @@
 # File: nessusscanner_connector.py
 #
-# Copyright (c) 2018-2023 Splunk Inc.
+# Copyright (c) 2018-2025 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,87 +36,81 @@ class RetVal(tuple):
 
 # Define the App Class
 class NessusCloudConnector(BaseConnector):
-
     ACTION_ID_SCAN_HOST = "scan_host"
     ACTION_ID_LIST_POLICIES = "list_policies"
 
     def __init__(self):
         # Call the BaseConnectors init first
-        super(NessusCloudConnector, self).__init__()
+        super().__init__()
 
     def _dump_error_log(self, error, message="Exception occurred."):
         self.error_print(message, dump_object=error)
 
     def _process_empty_reponse(self, response, action_result):
-
         if response.status_code == 200:
             return RetVal(phantom.APP_SUCCESS, {})
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, "Empty response and no information in the header"), None)
 
     def _process_html_response(self, response, action_result):
-
         # An html response, treat it like an error
         status_code = response.status_code
 
         try:
             soup = BeautifulSoup(response.text, "html.parser")
             error_text = soup.text
-            split_lines = error_text.split('\n')
+            split_lines = error_text.split("\n")
             split_lines = [x.strip() for x in split_lines if x.strip()]
-            error_text = '\n'.join(split_lines)
+            error_text = "\n".join(split_lines)
         except Exception as e:
             error_text = "Cannot parse error details"
             self._dump_error_log(e, "Error occurred in _process_html_response")
 
-        message = "Status Code: {0}. Data from server:\n{1}\n".format(status_code, error_text)
+        message = f"Status Code: {status_code}. Data from server:\n{error_text}\n"
 
-        message = message.replace('{', '{{').replace('}', '}}')
+        message = message.replace("{", "{{").replace("}", "}}")
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
     def _process_json_response(self, r, action_result):
-
         # Try a json parse
         try:
             resp_json = r.json()
         except Exception as e:
             self._dump_error_log(e, "Error occurred in _process_json_response")
-            return RetVal(action_result.set_status(phantom.APP_ERROR, "Unable to parse JSON response. Error: {0}".format(str(e))), None)
+            return RetVal(action_result.set_status(phantom.APP_ERROR, f"Unable to parse JSON response. Error: {e!s}"), None)
 
         # Please specify the status codes here
         if 200 <= r.status_code < 399:
             return RetVal(phantom.APP_SUCCESS, resp_json)
 
         # You should process the error returned in the json
-        message = "Error from server. Status Code: {0} Data from server: {1}".format(
-                r.status_code, r.text.replace('{', '{{').replace('}', '}}'))
+        message = "Error from server. Status Code: {} Data from server: {}".format(r.status_code, r.text.replace("{", "{{").replace("}", "}}"))
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
     def _process_response(self, r, action_result):
-
         # store the r_text in debug data, it will get dumped in the logs if the action fails
-        if hasattr(action_result, 'add_debug_data'):
-            action_result.add_debug_data({'r_status_code': r.status_code})
-            action_result.add_debug_data({'r_text': r.text})
-            action_result.add_debug_data({'r_headers': r.headers})
+        if hasattr(action_result, "add_debug_data"):
+            action_result.add_debug_data({"r_status_code": r.status_code})
+            action_result.add_debug_data({"r_text": r.text})
+            action_result.add_debug_data({"r_headers": r.headers})
 
         # Process each 'Content-Type' of response separately
 
         # Process a json response
-        content_type = r.headers.get('Content-Type', '')
+        content_type = r.headers.get("Content-Type", "")
 
         # this service returns the JSON with the content type set
         # as text !!, so need to handle that
-        if 'json' in content_type or 'text' in content_type:
+        if "json" in content_type or "text" in content_type:
             return self._process_json_response(r, action_result)
 
         # Process an HTML response, Do this no matter what the api talks.
         # There is a high chance of a PROXY in between phantom and the rest of
         # world, in case of errors, PROXY's return HTML, this function parses
         # the error and adds it to the action_result.
-        if 'html' in content_type:
+        if "html" in content_type:
             return self._process_html_response(r, action_result)
 
         # it's not content-type that is to be parsed, handle an empty response
@@ -124,36 +118,35 @@ class NessusCloudConnector(BaseConnector):
             return self._process_empty_reponse(r, action_result)
 
         # everything else is actually an error at this point
-        message = "Can't process response from server. Status Code: {0} Data from server: {1}".format(
-                r.status_code, r.text.replace('{', '{{').replace('}', '}}'))
+        message = "Can't process response from server. Status Code: {} Data from server: {}".format(
+            r.status_code, r.text.replace("{", "{{").replace("}", "}}")
+        )
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
-    def _make_rest_call(self, endpoint, action_result, method='get', data=None, headers=None, params=None):
-
+    def _make_rest_call(self, endpoint, action_result, method="get", data=None, headers=None, params=None):
         resp_json = None
 
         headers, server, verify = self._build_request()
 
-        url = "{0}{1}".format(server, endpoint)
+        url = f"{server}{endpoint}"
 
         try:
             request_func = getattr(requests, method)
         except AttributeError as ae:
             self._dump_error_log(ae, "Error occurred in _make_rest_call")
-            return RetVal(action_result.set_status(phantom.APP_ERROR, "Invalid method: {0}".format(method)), resp_json)
+            return RetVal(action_result.set_status(phantom.APP_ERROR, f"Invalid method: {method}"), resp_json)
 
         try:
             r = request_func(url, headers=headers, json=data, params=params, verify=verify)
         except Exception as e:
             self._dump_error_log(e, "Error occurred in _make_rest_call")
-            return RetVal(action_result.set_status( phantom.APP_ERROR, "Error Connecting to server. Details: {0}".format(str(e))), resp_json)
+            return RetVal(action_result.set_status(phantom.APP_ERROR, f"Error Connecting to server. Details: {e!s}"), resp_json)
 
         return self._process_response(r, action_result)
 
     # used to format the headers and returns where the Nessus server is
     def _build_request(self):
-
         config = self.get_config()
 
         accessKey = config.get(ACCESS_KEY)
@@ -163,23 +156,20 @@ class NessusCloudConnector(BaseConnector):
         port = config.get(LISTEN_PORT)
         verifyCert = config.get(VERIFY_CERT)
 
-        server = "https://{server}:{port}/".format(server=server, port=port)
+        server = f"https://{server}:{port}/"
 
         headers = {
-            'X-ApiKeys': 'accessKey={accessKey}; secretKey={secretKey};'.format(  # pragma: allowlist secret
-                accessKey=accessKey, secretKey=secretKey
-            )
+            "X-ApiKeys": f"accessKey={accessKey}; secretKey={secretKey};"  # pragma: allowlist secret
         }
 
         return headers, server, verifyCert
 
     def _test_connectivity(self, param):
-
         action_result = self.add_action_result(ActionResult(dict(param)))
 
         self.save_progress("Attempting to get a list of users to test connectivity")
 
-        ret_val, resp_json = self._make_rest_call('users', action_result)
+        ret_val, resp_json = self._make_rest_call("users", action_result)
 
         if phantom.is_fail(ret_val):
             self.save_progress("Test Connectivity Failed")
@@ -191,7 +181,6 @@ class NessusCloudConnector(BaseConnector):
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_scan_host(self, param):
-
         self.debug_print("param", param)
 
         action_result = ActionResult(dict(param))
@@ -213,25 +202,26 @@ class NessusCloudConnector(BaseConnector):
                 "scanner_id": "1",
                 "policy_id": str(policy_id),
                 "text_targets": str(host_to_scan),
-                "launch_now": "true"}}
+                "launch_now": "true",
+            },
+        }
 
         self.save_progress("Launching scan against " + str(host_to_scan))
 
-        ret_val, running_scan_data = self._make_rest_call('scans', action_result, method='post', data=scanOptions)
+        ret_val, running_scan_data = self._make_rest_call("scans", action_result, method="post", data=scanOptions)
 
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
         # Once the scan has been launched and is running it is assigned an id which is gathered below
-        scan_id = running_scan_data['scan']['id']
+        scan_id = running_scan_data["scan"]["id"]
 
         completed = " "
         hosts = []
 
         # this checks every 30 seconds to see if the scan is still running.
         while completed != "completed":
-
-            ret_val, scanStatus = self._make_rest_call('scans/{0}'.format(str(scan_id)), action_result)
+            ret_val, scanStatus = self._make_rest_call(f"scans/{scan_id!s}", action_result)
 
             if phantom.is_fail(ret_val):
                 self.save_progress("There was an error checking for the status of the scan")
@@ -239,13 +229,13 @@ class NessusCloudConnector(BaseConnector):
 
             completed = scanStatus["info"]
 
-            if completed['status'] != 'completed':
+            if completed["status"] != "completed":
                 self.send_progress("scan still in progress")
                 time.sleep(30)
             else:
                 completed = "completed"
                 self.send_progress("scan completed")
-                hosts = scanStatus.get('hosts', [])
+                hosts = scanStatus.get("hosts", [])
 
         if type(hosts) != list:
             hosts = [hosts]
@@ -257,24 +247,23 @@ class NessusCloudConnector(BaseConnector):
             scan_final_data = hosts[-1]
             total = scan_final_data["low"] + scan_final_data["medium"] + scan_final_data["high"] + scan_final_data["critical"]
             summary = action_result.update_summary({})
-            summary['total_vulns'] = total
+            summary["total_vulns"] = total
         else:
             return action_result.set_status(phantom.APP_ERROR, "Response is empty. Please check the input parameters.")
 
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _list_policies(self, param):
-
         action_result = ActionResult(dict(param))
         self.add_action_result(action_result)
 
         # gets the full information for the Nessus policies
-        ret_val, list_policies = self._make_rest_call('policies/', action_result)
+        ret_val, list_policies = self._make_rest_call("policies/", action_result)
 
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-        policies = list_policies.get('policies', [])
+        policies = list_policies.get("policies", [])
 
         if not policies:
             policies = []
@@ -291,13 +280,12 @@ class NessusCloudConnector(BaseConnector):
 
         # creates an empty list to add the summary elements to
         summary = action_result.update_summary({})
-        summary['policy_count'] = policy_counter
+        summary["policy_count"] = policy_counter
         action_result.set_status(phantom.APP_SUCCESS)
 
         return action_result.get_status()
 
     def handle_action(self, param):
-
         ret_val = phantom.APP_SUCCESS
 
         # Get the action that we are supposed to execute for this App Run
@@ -315,8 +303,7 @@ class NessusCloudConnector(BaseConnector):
         return ret_val
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     import argparse
 
     import pudb
@@ -325,10 +312,10 @@ if __name__ == '__main__':
 
     argparser = argparse.ArgumentParser()
 
-    argparser.add_argument('input_test_json', help='Input Test JSON file')
-    argparser.add_argument('-u', '--username', help='username', required=False)
-    argparser.add_argument('-p', '--password', help='password', required=False)
-    argparser.add_argument('-v', '--verify', action='store_true', help='verify', required=False, default=False)
+    argparser.add_argument("input_test_json", help="Input Test JSON file")
+    argparser.add_argument("-u", "--username", help="username", required=False)
+    argparser.add_argument("-p", "--password", help="password", required=False)
+    argparser.add_argument("-v", "--verify", action="store_true", help="verify", required=False, default=False)
 
     args = argparser.parse_args()
     session_id = None
@@ -338,31 +325,24 @@ if __name__ == '__main__':
     verify = args.verify
 
     if username is not None and password is None:
-
         # User specified a username but not a password, so ask
         import getpass
+
         password = getpass.getpass("Password: ")
 
     if username and password:
         try:
-            login_url = BaseConnector._get_phantom_base_url() + 'login'
+            login_url = BaseConnector._get_phantom_base_url() + "login"
             print("Accessing the Login page")
-            r = requests.get(login_url, verify=verify)     # nosemgrep: python.requests.best-practice.use-timeout.use-timeout
-            csrftoken = r.cookies['csrftoken']
+            r = requests.get(login_url, verify=verify)  # nosemgrep: python.requests.best-practice.use-timeout.use-timeout
+            csrftoken = r.cookies["csrftoken"]
 
-            data = {
-                'username': username,
-                'password': password,
-                'csrfmiddlewaretoken': csrftoken
-            }
-            headers = {
-                'Cookie': 'csrftoken={}'.format(csrftoken),
-                'Referer': login_url
-            }
+            data = {"username": username, "password": password, "csrfmiddlewaretoken": csrftoken}
+            headers = {"Cookie": f"csrftoken={csrftoken}", "Referer": login_url}
 
             print("Logging into Platform to get the session id")
             r2 = requests.post(login_url, verify=verify, data=data, headers=headers)
-            session_id = r2.cookies['sessionid']
+            session_id = r2.cookies["sessionid"]
         except Exception as e:
             print("Unable to get session id from the platfrom. Error: " + str(e))
             sys.exit(1)
@@ -376,8 +356,8 @@ if __name__ == '__main__':
         connector.print_progress_message = True
 
         if session_id is not None:
-            in_json['user_session_token'] = session_id
-            connector._set_csrf_info(csrftoken, headers['Referer'])
+            in_json["user_session_token"] = session_id
+            connector._set_csrf_info(csrftoken, headers["Referer"])
 
         ret_val = connector._handle_action(json.dumps(in_json), None)
         print(json.dumps(json.loads(ret_val), indent=4))

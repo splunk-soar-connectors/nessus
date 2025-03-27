@@ -1,18 +1,19 @@
 Splunk SOAR Nessus
-Copyright (c) 2018-2023 Splunk Inc.
+Copyright (c) 2018-2025 Splunk Inc.
 
-Third-party Software Attributions:
+Third Party Software Attributions:
 
-Library: beautifulsoup4
+Name: beautifulsoup4
 Version: 4.9.1
+Author: Leonard Richardson
 License: MIT
-Copyright 2004-2017 Leonard Richardson
-Copyright 2004-2019 Leonard Richardson
-Copyright 2018 Isaac Muse
 
-Library: simplejson
+Name: simplejson
 Version: 3.17.2
-License: Academic 2.1
-License: MIT
-Copyright 2003-2004 Lawrence E
-Copyright 2006 Bob Ippolito
+Author: Bob Ippolito
+License: MIT License
+
+Name: soupsieve
+Version: 2.6
+Author:
+License:

@@ -216,26 +216,33 @@ class NessusCloudConnector(BaseConnector):
         # Once the scan has been launched and is running it is assigned an id which is gathered below
         scan_id = running_scan_data["scan"]["id"]
 
-        completed = " "
         hosts = []
+        terminal_failure_states = {"aborted", "canceled", "empty", "imported", "stopped"}
+        polling_deadline = time.monotonic() + (2 * 60 * 60)
 
         # this checks every 30 seconds to see if the scan is still running.
-        while completed != "completed":
+        while True:
             ret_val, scanStatus = self._make_rest_call(f"scans/{scan_id!s}", action_result)
 
             if phantom.is_fail(ret_val):
                 self.save_progress("There was an error checking for the status of the scan")
                 return action_result.get_status()
 
-            completed = scanStatus["info"]
+            scan_state = scanStatus["info"]["status"].lower()
 
-            if completed["status"] != "completed":
-                self.send_progress("scan still in progress")
-                time.sleep(30)
-            else:
-                completed = "completed"
+            if scan_state == "completed":
                 self.send_progress("scan completed")
                 hosts = scanStatus.get("hosts", [])
+                break
+
+            if scan_state in terminal_failure_states:
+                return action_result.set_status(phantom.APP_ERROR, f"Nessus scan ended in terminal state '{scan_state}'")
+
+            if time.monotonic() >= polling_deadline:
+                return action_result.set_status(phantom.APP_ERROR, "Timed out waiting for Nessus scan to complete")
+
+            self.send_progress(f"scan still in progress ({scan_state})")
+            time.sleep(30)
 
         if type(hosts) != list:
             hosts = [hosts]

@@ -244,8 +244,7 @@ class NessusCloudConnector(BaseConnector):
             action_result.add_data(curr_item)
 
         if hosts:
-            scan_final_data = hosts[-1]
-            total = scan_final_data["low"] + scan_final_data["medium"] + scan_final_data["high"] + scan_final_data["critical"]
+            total = sum(host["low"] + host["medium"] + host["high"] + host["critical"] for host in hosts)
             summary = action_result.update_summary({})
             summary["total_vulns"] = total
         else:

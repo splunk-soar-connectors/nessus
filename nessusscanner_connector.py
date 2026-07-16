@@ -1,6 +1,6 @@
 # File: nessusscanner_connector.py
 #
-# Copyright (c) 2018-2025 Splunk Inc.
+# Copyright (c) 2018-2026 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -169,7 +169,7 @@ class NessusCloudConnector(BaseConnector):
 
         self.save_progress("Attempting to get a list of users to test connectivity")
 
-        ret_val, resp_json = self._make_rest_call("users", action_result)
+        ret_val, _resp_json = self._make_rest_call("users", action_result)
 
         if phantom.is_fail(ret_val):
             self.save_progress("Test Connectivity Failed")

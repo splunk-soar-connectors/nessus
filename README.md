@@ -1,9 +1,9 @@
 # Nessus
 
-Publisher: Splunk \
-Connector Version: 2.2.4 \
-Product Vendor: Tenable \
-Product Name: Nessus \
+Publisher: Splunk <br>
+Connector Version: 2.2.4 <br>
+Product Vendor: Tenable <br>
+Product Name: Nessus <br>
 Minimum Product Version: 5.3.5
 
 This app integrates with Tenable's Nessus scanner to provide endpoint-based investigative actions
@@ -30,15 +30,15 @@ VARIABLE | REQUIRED | TYPE | DESCRIPTION
 
 ### Supported Actions
 
-[test connectivity](#action-test-connectivity) - Validate the asset configuration using api tokens \
-[list policies](#action-list-policies) - List the available scan policies \
+[test connectivity](#action-test-connectivity) - Validate the asset configuration using api tokens <br>
+[list policies](#action-list-policies) - List the available scan policies <br>
 [scan endpoint](#action-scan-endpoint) - Scans a host using the selected scan policy ID
 
 ## action: 'test connectivity'
 
 Validate the asset configuration using api tokens
 
-Type: **test** \
+Type: **test** <br>
 Read only: **True**
 
 #### Action Parameters
@@ -53,7 +53,7 @@ No Output
 
 List the available scan policies
 
-Type: **investigate** \
+Type: **investigate** <br>
 Read only: **True**
 
 #### Action Parameters
@@ -86,7 +86,7 @@ summary.total_objects_successful | numeric | | 1 |
 
 Scans a host using the selected scan policy ID
 
-Type: **investigate** \
+Type: **investigate** <br>
 Read only: **True**
 
 This action requires the ID of the scan policy to be used in the scan. Note, the scan may take 10-15 minutes.
@@ -131,7 +131,7 @@ ______________________________________________________________________
 
 Auto-generated Splunk SOAR Connector documentation.
 
-Copyright 2025 Splunk Inc.
+Copyright 2026 Splunk Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

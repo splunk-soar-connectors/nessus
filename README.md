@@ -1,7 +1,7 @@
 # Nessus
 
 Publisher: Splunk <br>
-Connector Version: 2.2.4 <br>
+Connector Version: 2.2.5 <br>
 Product Vendor: Tenable <br>
 Product Name: Nessus <br>
 Minimum Product Version: 5.3.5

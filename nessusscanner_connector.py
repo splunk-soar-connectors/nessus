@@ -29,6 +29,9 @@ from phantom.base_connector import BaseConnector
 from nessusscanner_consts import *
 
 
+NESSUS_DEFAULT_REQUEST_TIMEOUT = (10, 60)
+
+
 class RetVal(tuple):
     def __new__(cls, val1, val2=None):
         return tuple.__new__(RetVal, (val1, val2))
@@ -138,7 +141,14 @@ class NessusCloudConnector(BaseConnector):
             return RetVal(action_result.set_status(phantom.APP_ERROR, f"Invalid method: {method}"), resp_json)
 
         try:
-            r = request_func(url, headers=headers, json=data, params=params, verify=verify)
+            r = request_func(
+                url,
+                headers=headers,
+                json=data,
+                params=params,
+                verify=verify,
+                timeout=NESSUS_DEFAULT_REQUEST_TIMEOUT,
+            )
         except Exception as e:
             self._dump_error_log(e, "Error occurred in _make_rest_call")
             return RetVal(action_result.set_status(phantom.APP_ERROR, f"Error Connecting to server. Details: {e!s}"), resp_json)

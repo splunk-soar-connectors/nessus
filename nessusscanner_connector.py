@@ -15,6 +15,7 @@
 #
 #
 # Phantom App imports
+import hashlib
 import sys
 import time
 
@@ -27,6 +28,9 @@ from phantom.base_connector import BaseConnector
 
 # Imports local to this App
 from nessusscanner_consts import *
+
+
+NESSUS_DEFAULT_REQUEST_TIMEOUT = (10, 60)
 
 
 class RetVal(tuple):
@@ -42,6 +46,36 @@ class NessusCloudConnector(BaseConnector):
     def __init__(self):
         # Call the BaseConnectors init first
         super().__init__()
+
+    def initialize(self):
+        state = self.load_state()
+        if not isinstance(state, dict):
+            state = {}
+
+        config = self.get_config()
+        api_key_material = json.dumps([config.get(ACCESS_KEY), config.get(SECRET_KEY)], separators=(",", ":"))
+        api_key_fingerprint = hashlib.sha256(api_key_material.encode("utf-8")).hexdigest()
+        _headers, server, _verify = self._build_request()
+        credential_binding = state.get("credential_binding")
+
+        if (
+            isinstance(credential_binding, dict)
+            and credential_binding.get("api_key_sha256") == api_key_fingerprint
+            and credential_binding.get("server") != server
+        ):
+            return self.set_status(
+                phantom.APP_ERROR,
+                "The Nessus server or port changed while the stored API keys remained unchanged. "
+                "Generate new API keys and update the endpoint and credentials together.",
+            )
+
+        updated_binding = {"server": server, "api_key_sha256": api_key_fingerprint}
+        if credential_binding != updated_binding:
+            state["credential_binding"] = updated_binding
+            if phantom.is_fail(self.save_state(state)):
+                return self.set_status(phantom.APP_ERROR, "Unable to persist the Nessus API-key endpoint binding")
+
+        return phantom.APP_SUCCESS
 
     def _dump_error_log(self, error, message="Exception occurred."):
         self.error_print(message, dump_object=error)
@@ -138,7 +172,14 @@ class NessusCloudConnector(BaseConnector):
             return RetVal(action_result.set_status(phantom.APP_ERROR, f"Invalid method: {method}"), resp_json)
 
         try:
-            r = request_func(url, headers=headers, json=data, params=params, verify=verify)
+            r = request_func(
+                url,
+                headers=headers,
+                json=data,
+                params=params,
+                verify=verify,
+                timeout=NESSUS_DEFAULT_REQUEST_TIMEOUT,
+            )
         except Exception as e:
             self._dump_error_log(e, "Error occurred in _make_rest_call")
             return RetVal(action_result.set_status(phantom.APP_ERROR, f"Error Connecting to server. Details: {e!s}"), resp_json)
